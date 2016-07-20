@@ -508,6 +508,8 @@ def get_args():
     	default=False)
     parser.add_argument(
         '-d', '--debug', help='Debug Mode', action='store_true')
+    parser.add_argument(
+        '-pid', '--parent_pid', help='Parent PID')
     parser.set_defaults(DEBUG=True)
     return parser.parse_args()
 
@@ -844,6 +846,7 @@ def get_pokemarkers():
 <div><b>{name}</b><span> - </span><small><a href='http://www.pokemon.com/us/pokedex/{id}' target='_blank' title='View in Pokedex'>#{id}</a></small></div>
 <div>Disappears at - {disappear_time_formatted} <span class='label-countdown' disappears-at='{disappear_time}'></span></div>
 <div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
+<div><small>{lat}, {lng}</small></div>
 '''
         label = LABEL_TMPL.format(**pokemon)
         #  NOTE: `infobox` field doesn't render multiple line string in frontend
