@@ -36,6 +36,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from requests.adapters import ConnectionError
 from requests.models import InvalidURL
 from transform import *
+import singleton
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -558,6 +559,7 @@ def login(args):
     return api_endpoint, access_token, profile_response
 
 def main():
+    me = singleton.SingleInstance('pokemap')
     full_path = os.path.realpath(__file__)
     (path, filename) = os.path.split(full_path)
 
