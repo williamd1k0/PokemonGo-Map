@@ -62,6 +62,7 @@ SESSION.verify = False
 global_password = None
 global_token = None
 access_token = None
+global_parent_pid = None
 DEBUG = True
 VERBOSE_DEBUG = False  # if you want to write raw request/response to the console
 COORDS_LATITUDE = 0
@@ -205,7 +206,11 @@ def get_location_coords():
 
 
 def retrying_api_req(service, api_endpoint, access_token, *args, **kwargs):
+    global global_parent_pid
     while True:
+        if global_parent_pid is not None:
+                if not is_running(global_parent_pid):
+                    return
         try:
             response = api_req(service, api_endpoint, access_token, *args,
                                **kwargs)
@@ -509,7 +514,7 @@ def get_args():
     parser.add_argument(
         '-d', '--debug', help='Debug Mode', action='store_true')
     parser.add_argument(
-        '-pid', '--parent_pid', help='Parent PID')
+        '-pid', '--parent_pid', help='Parent PID', default=None)
     parser.set_defaults(DEBUG=True)
     return parser.parse_args()
 
@@ -593,6 +598,10 @@ def main():
     	global is_ampm_clock
     	is_ampm_clock = True
 
+    if args.parent_pid:
+        global global_parent_pid
+        global_parent_pid = int(args.parent_pid)
+
     api_endpoint, access_token, profile_response = login(args)
 
     clear_stale_pokemons()
@@ -613,6 +622,10 @@ def main():
     dy = -1
     steplimit2 = steplimit**2
     for step in range(steplimit2):
+        if global_parent_pid is not None:
+            if not is_running(global_parent_pid):
+                return
+
         #starting at 0 index
         debug('looping: step {} of {}'.format((step+1), steplimit**2))
         #debug('steplimit: {} x: {} y: {} pos: {} dx: {} dy {}'.format(steplimit2, x, y, pos, dx, dy))
@@ -670,9 +683,9 @@ def process_step(args, api_endpoint, access_token, profile_response,
             for cell in hh.cells:
                 for wild in cell.WildPokemon:
                     hash = wild.SpawnPointId;
-                    if hash not in seen.keys() or (seen[hash].TimeTillHiddenMs < wild.TimeTillHiddenMs):
+                    if hash not in seen.keys() or (seen[hash].TimeTillHiddenMs <= wild.TimeTillHiddenMs):
                         visible.append(wild)
-                        seen[hash] = wild.TimeTillHiddenMs
+                    seen[hash] = wild.TimeTillHiddenMs
                 if cell.Fort:
                     for Fort in cell.Fort:
                         if Fort.Enabled == True:
@@ -918,8 +931,33 @@ def get_map():
         zoom='15', )
     return fullmap
 
+def monitor_parent_process():
+    if args.parent_pid is None:
+        return
+
+    while is_running(int(args.parent_pid)):
+        time.sleep(1)
+
+    print 'Parent process shutdown'
+
+    func = flask.request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+    sys.exit(0)
+    return
+
+def is_running(pid):
+    try:
+        os.kill(pid, 0)
+    except OSError as err:
+        if err.errno == errno.ESRCH:
+            return False
+    return True
 
 if __name__ == '__main__':
     args = get_args()
+    threading.Thread(target=monitor_parent_process).start()
     register_background_thread(initial_registration=True)
     app.run(debug=True, threaded=True, host=args.host, port=args.port)
