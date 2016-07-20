@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import sys
 if not ('packages.zip' in sys.path):
     sys.path.insert(0, 'packages.zip')
@@ -22,6 +23,7 @@ import threading
 import werkzeug.serving
 import pokemon_pb2
 import time
+import errno
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
@@ -91,6 +93,9 @@ is_ampm_clock = False
 
 search_thread = None
 
+def sysprint(msg):
+    print(msg, file=sys.stderr)
+
 def memoize(obj):
     cache = obj.cache = {}
 
@@ -108,8 +113,7 @@ def parse_unicode(bytestring):
 
 
 def debug(message):
-    if DEBUG:
-        print '[-] {}'.format(message)
+    sysprint('[-] {}'.format(message))
 
 
 def time_left(ms):
@@ -185,9 +189,9 @@ def set_location(location_name):
         loc = geolocator.geocode(location_name)
         origin_lat, origin_lon = local_lat, local_lng = loc.latitude, loc.longitude
         alt = loc.altitude
-        print '[!] Your given location: {}'.format(loc.address.encode('utf-8'))
+        sysprint('[!] Your given location: {}'.format(loc.address.encode('utf-8')))
 
-    print('[!] lat/long/alt: {} {} {}'.format(local_lat, local_lng, alt))
+    sysprint('[!] lat/long/alt: {} {} {}'.format(local_lat, local_lng, alt))
     set_location_coords(local_lat, local_lng, alt)
 
 
@@ -254,13 +258,13 @@ def api_req(service, api_endpoint, access_token, *args, **kwargs):
     p_ret.ParseFromString(r.content)
 
     if VERBOSE_DEBUG:
-        print 'REQUEST:'
-        print p_req
-        print 'Response:'
-        print p_ret
-        print '''
+        sysprint('REQUEST:')
+        sysprint(p_req)
+        sysprint('Response:')
+        sysprint(p_ret)
+        sysprint('''
 
-'''
+''')
     time.sleep(0.51)
     return p_ret
 
@@ -328,7 +332,7 @@ def get_profile(service, access_token, api, useauth, *reqq):
     return retrying_api_req(service, api, access_token, req, useauth=useauth)
 
 def login_google(username, password):
-    print '[!] Google login for: {}'.format(username)
+    sysprint('[!] Google login for: {}'.format(username))
     r1 = perform_master_login(username, password, ANDROID_ID)
     r2 = perform_oauth(username,
                        r1.get('Token', ''),
@@ -339,7 +343,7 @@ def login_google(username, password):
     return r2.get('Auth')
 
 def login_ptc(username, password):
-    print '[!] PTC login for: {}'.format(username)
+    sysprint('[!] PTC login for: {}'.format(username))
     head = {'User-Agent': 'Niantic App'}
     r = SESSION.get(LOGIN_URL, headers=head)
     if r is None:
@@ -354,7 +358,7 @@ def login_ptc(username, password):
     # Maximum password length is 15 (sign in page enforces this limit, API does not)
 
     if len(password) > 15:
-        print '[!] Trimming password to 15 characters'
+        sysprint('[!] Trimming password to 15 characters')
         password = password[:15]
 
     data = {
@@ -371,7 +375,7 @@ def login_ptc(username, password):
         ticket = re.sub('.*ticket=', '', r1.history[0].headers['Location'])
     except Exception, e:
         if DEBUG:
-            print r1.json()['errors'][0]
+            sysprint(r1.json()['errors'][0])
         return None
 
     data1 = {
@@ -534,34 +538,34 @@ def login(args):
     if access_token is None:
         raise Exception('[-] Wrong username/password')
 
-    print '[+] RPC Session Token: {} ...'.format(access_token[:25])
+    sysprint('[+] RPC Session Token: {} ...'.format(access_token[:25]))
 
     api_endpoint = get_api_endpoint(args.auth_service, access_token)
     if api_endpoint is None:
         raise Exception('[-] RPC server offline')
 
-    print '[+] Received API endpoint: {}'.format(api_endpoint)
+    sysprint('[+] Received API endpoint: {}'.format(api_endpoint))
 
     profile_response = retrying_get_profile(args.auth_service, access_token,
                                             api_endpoint, None)
     if profile_response is None or not profile_response.payload:
         raise Exception('Could not get profile')
 
-    print '[+] Login successful'
+    sysprint('[+] Login successful')
 
     payload = profile_response.payload[0]
     profile = pokemon_pb2.ResponseEnvelop.ProfilePayload()
     profile.ParseFromString(payload)
-    print '[+] Username: {}'.format(profile.profile.username)
+    sysprint('[+] Username: {}'.format(profile.profile.username))
 
     creation_time = \
         datetime.fromtimestamp(int(profile.profile.creation_time)
                                / 1000)
-    print '[+] You started playing Pokemon Go on: {}'.format(
-        creation_time.strftime('%Y-%m-%d %H:%M:%S'))
+    sysprint('[+] You started playing Pokemon Go on: {}'.format(
+        creation_time.strftime('%Y-%m-%d %H:%M:%S')))
 
     for curr in profile.profile.currency:
-        print '[+] {}: {}'.format(curr.type, curr.amount)
+        sysprint('[+] {}: {}'.format(curr.type, curr.amount))
 
     return api_endpoint, access_token, profile_response
 
@@ -573,21 +577,21 @@ def main():
     args = get_args()
 
     if args.auth_service not in ['ptc', 'google']:
-        print '[!] Invalid Auth service specified'
+        sysprint('[!] Invalid Auth service specified')
         return
 
-    print('[+] Locale is ' + args.locale)
+    sysprint('[+] Locale is ' + args.locale)
     pokemonsJSON = json.load(
         open(path + '/locales/pokemon.' + args.locale + '.json'))
 
     if args.debug:
         global DEBUG
         DEBUG = True
-        print '[!] DEBUG mode on'
+        sysprint('[!] DEBUG mode on')
 
     # only get location for first run
     if not (FLOAT_LAT and FLOAT_LONG):
-      print('[+] Getting initial location')
+      sysprint('[+] Getting initial location')
       retrying_set_location(args.location)
 
     if args.auto_refresh:
@@ -640,13 +644,13 @@ def main():
         process_step(args, api_endpoint, access_token, profile_response,
                      pokemonsJSON, ignore, only)
 
-        print('Completed: ' + str(
+        sysprint('Completed: ' + str(
             ((step+1) + pos * .25 - .25) / (steplimit2) * 100) + '%')
 
     global NEXT_LAT, NEXT_LONG
     if (NEXT_LAT and NEXT_LONG and
             (NEXT_LAT != FLOAT_LAT or NEXT_LONG != FLOAT_LONG)):
-        print('Update to next location %f, %f' % (NEXT_LAT, NEXT_LONG))
+        sysprint('Update to next location %f, %f' % (NEXT_LAT, NEXT_LONG))
         set_location_coords(NEXT_LAT, NEXT_LONG, 0)
         NEXT_LAT = 0
         NEXT_LONG = 0
@@ -658,7 +662,7 @@ def main():
 
 def process_step(args, api_endpoint, access_token, profile_response,
                  pokemonsJSON, ignore, only):
-    print('[+] Searching for Pokemon at location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
+    sysprint('[+] Searching for Pokemon at location {} {}'.format(FLOAT_LAT, FLOAT_LONG))
     origin = LatLng.from_degrees(FLOAT_LAT, FLOAT_LONG)
     step_lat = FLOAT_LAT
     step_long = FLOAT_LONG
@@ -741,8 +745,8 @@ def clear_stale_pokemons():
     for pokemon_key in pokemons.keys():
         pokemon = pokemons[pokemon_key]
         if current_time > pokemon['disappear_time']:
-            print "[+] removing stale pokemon %s at %f, %f from list" % (
-                pokemon['name'].encode('utf-8'), pokemon['lat'], pokemon['lng'])
+            sysprint ("[+] removing stale pokemon %s at %f, %f from list" % (
+                pokemon['name'].encode('utf-8'), pokemon['lat'], pokemon['lng']))
             del pokemons[pokemon_key]
 
 
@@ -758,10 +762,10 @@ def register_background_thread(initial_registration=False):
     global search_thread
 
     if initial_registration:
-        if not werkzeug.serving.is_running_from_reloader():
-            debug(
-                'register_background_thread: not running inside Flask so not starting thread')
-            return
+        #if not werkzeug.serving.is_running_from_reloader():
+        #    debug(
+        #        'register_background_thread: not running inside Flask so not starting thread')
+        #    return
         if search_thread:
             debug(
                 'register_background_thread: initial registration requested but thread already running')
@@ -827,9 +831,9 @@ def next_loc():
     lat = flask.request.args.get('lat', '')
     lon = flask.request.args.get('lon', '')
     if not (lat and lon):
-        print('[-] Invalid next location: %s,%s' % (lat, lon))
+        sysprint('[-] Invalid next location: %s,%s' % (lat, lon))
     else:
-        print('[+] Saved next location as %s,%s' % (lat, lon))
+        sysprint('[+] Saved next location as %s,%s' % (lat, lon))
         NEXT_LAT = float(lat)
         NEXT_LONG = float(lon)
         return 'ok'
@@ -938,7 +942,7 @@ def monitor_parent_process():
     while is_running(int(args.parent_pid)):
         time.sleep(1)
 
-    print 'Parent process shutdown'
+    sysprint('Parent process shutdown')
 
     func = flask.request.environ.get('werkzeug.server.shutdown')
     if func is None:
@@ -960,4 +964,4 @@ if __name__ == '__main__':
     args = get_args()
     threading.Thread(target=monitor_parent_process).start()
     register_background_thread(initial_registration=True)
-    app.run(debug=True, threaded=True, host=args.host, port=args.port)
+    app.run(debug=False, threaded=True, host=args.host, port=args.port)
