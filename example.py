@@ -518,6 +518,8 @@ def get_args():
     parser.add_argument(
         '-d', '--debug', help='Debug Mode', action='store_true')
     parser.add_argument(
+        '-at', '--ask_token', help='Ask Token', action='store_true')
+    parser.add_argument(
         '-pid', '--parent_pid', help='Parent PID', default=None)
     parser.set_defaults(DEBUG=True)
     return parser.parse_args()
@@ -534,7 +536,10 @@ def login(args):
     if args.token:
         access_token = args.token
     else:
-        access_token = get_token(args.auth_service, args.username, global_password)
+        if args.ask_token:
+            access_token = getpass.getpass()
+        else:
+            access_token = get_token(args.auth_service, args.username, global_password)
     if access_token is None:
         raise Exception('[-] Wrong username/password')
 
