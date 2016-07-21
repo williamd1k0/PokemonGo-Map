@@ -909,7 +909,6 @@ def get_pokemarkers():
         }
 
         if stop[2] > 0:
-            sysprint(stop);
             disappear_time = time.mktime(datetime.strptime(time.strftime("%d/%m/%Y") + ' ' + stop[2], "%d/%m/%Y %H:%M:%S").timetuple())
 
             pokestop['expire_time'] = disappear_time
