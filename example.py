@@ -862,6 +862,7 @@ def get_pokemarkers():
         LABEL_TMPL = u'''
 <div><b>{name}</b><span> - </span><small><a href='http://www.pokemon.com/us/pokedex/{id}' target='_blank' title='View in Pokedex'>#{id}</a></small></div>
 <div>Disappears at - {disappear_time_formatted} <span class='label-countdown' disappears-at='{disappear_time}'></span></div>
+<br>
 <div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
 <div><small>{lat}, {lng}</small></div>
 '''
@@ -890,7 +891,29 @@ def get_pokemarkers():
         if gym[0] == 3:
             color = "rgba(254, 217, 40, .6)"
 
-        icon = 'static/forts/'+numbertoteam[gym[0]]+'_large.png'
+        pokegym = {
+            'team': gym[0],
+            'lat': gym[1],
+            'lng': gym[2],
+            'prestige': str(gym[3]),
+            'team_name': numbertoteam[gym[0]],
+            'icon': 'static/forts/' + numbertoteam[gym[0]] + '_large.png',
+            'color': color
+        }
+
+        LABEL_TMPL = u'''
+<div><b style='color: {color}'>Team {team_name}'s Gym</b><span></div>
+<div><img id='{team_name}' height='100px' src='{icon}'></div>
+<div>Prestige: {prestige}</div>
+<br>
+<div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
+<div><small>{lat}, {lng}</small></div>
+'''
+
+        label = LABEL_TMPL.format(**pokegym)
+        #  NOTE: `infobox` field doesn't render multiple line string in frontend
+        label = label.replace('\n', '')
+
         pokeMarkers.append({
             'icon': 'static/forts/' + numbertoteam[gym[0]] + '.png',
             'type': 'gym',
@@ -898,7 +921,7 @@ def get_pokemarkers():
             'disappear_time': -1,
             'lat': gym[1],
             'lng': gym[2],
-            'infobox': "<div><center><small>Gym owned by:</small><br><b style='color:" + color + "'>Team " + numbertoteam[gym[0]] + "</b><br><img id='" + numbertoteam[gym[0]] + "' height='100px' src='"+icon+"'><br>Prestige: " + str(gym[3]) + "</center>"
+            'infobox': label
         })
     for stop_key in pokestops:
         stop = pokestops[stop_key]
@@ -917,6 +940,7 @@ def get_pokemarkers():
             LABEL_TMPL = u'''
 <div><b>Lured Pokestop</b><span></div>
 <div>Lure expires at - {expire_time_formatted} <span class='label-countdown' disappears-at='{expire_time}'></span></div>
+<br>
 <div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
 <div><small>{lat}, {lng}</small></div>
 '''
@@ -936,6 +960,7 @@ def get_pokemarkers():
         else:
             LABEL_TMPL = u'''
 <div><b>Pokestop</b><span></div>
+<br>
 <div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
 <div><small>{lat}, {lng}</small></div>
 '''
