@@ -902,25 +902,56 @@ def get_pokemarkers():
         })
     for stop_key in pokestops:
         stop = pokestops[stop_key]
+
+        pokestop = {
+            'lat': stop[0],
+            'lng': stop[1]
+        }
+
         if stop[2] > 0:
+            sysprint(stop);
+            disappear_time = time.mktime(datetime.strptime(time.strftime("%d/%m/%Y") + ' ' + stop[2], "%d/%m/%Y %H:%M:%S").timetuple())
+
+            pokestop['expire_time'] = disappear_time
+            pokestop['expire_time_formatted'] = stop[2]
+
+            LABEL_TMPL = u'''
+<div><b>Lured Pokestop</b><span></div>
+<div>Lure expires at - {expire_time_formatted} <span class='label-countdown' disappears-at='{expire_time}'></span></div>
+<div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
+<div><small>{lat}, {lng}</small></div>
+'''
+            label = LABEL_TMPL.format(**pokestop)
+            #  NOTE: `infobox` field doesn't render multiple line string in frontend
+            label = label.replace('\n', '')
+
             pokeMarkers.append({
                 'type': 'lured_stop',
                 'key': stop_key,
                 'disappear_time': -1,
                 'icon': 'static/forts/PstopLured.png',
-                'lat': stop[0],
-                'lng': stop[1],
-                'infobox': 'Lured Pokestop, expires at ' + stop[2],
+                'lat': pokestop['lat'],
+                'lng': pokestop['lng'],
+                'infobox': label,
             })
         else:
+            LABEL_TMPL = u'''
+<div><b>Pokestop</b><span></div>
+<div><a href='https://www.google.com/maps/dir/Current+Location/{lat},{lng}' target='_blank' title='View in Maps'>Get Directions</a></div>
+<div><small>{lat}, {lng}</small></div>
+'''
+            label = LABEL_TMPL.format(**pokestop)
+            #  NOTE: `infobox` field doesn't render multiple line string in frontend
+            label = label.replace('\n', '')
+
             pokeMarkers.append({
                 'type': 'stop',
                 'key': stop_key,
                 'disappear_time': -1,
                 'icon': 'static/forts/Pstop.png',
-                'lat': stop[0],
-                'lng': stop[1],
-                'infobox': 'Pokestop',
+                'lat': pokestop['lat'],
+                'lng': pokestop['lng'],
+                'infobox': label,
             })
     return pokeMarkers
 
