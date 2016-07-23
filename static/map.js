@@ -160,7 +160,8 @@ function pokemonLabel(name, disappear_time, id, latitude, longitude) {
         <div>
             <a href='https://www.google.com/maps/dir/Current+Location/${latitude},${longitude}'
                     target='_blank' title='View in Maps'>Get directions</a>
-        </div>`;
+        </div>
+        <div><small>${latitude}, ${longitude}</small></div>`;
     return contentstring;
 }
 
@@ -220,7 +221,8 @@ function pokestopLabel(lured, last_modified, active_pokemon_id, latitude, longit
             <div>
                 <a href='https://www.google.com/maps/dir/Current+Location/${latitude},${longitude}'
                         target='_blank' title='View in Maps'>Get directions</a>
-            </div>`;
+            </div>
+            <div><small>${latitude}, ${longitude}</small></div>`;
     } else {
         str = `
             <div>
@@ -229,7 +231,8 @@ function pokestopLabel(lured, last_modified, active_pokemon_id, latitude, longit
             <div>
                 <a href='https://www.google.com/maps/dir/Current+Location/${latitude},${longitude}'
                         target='_blank' title='View in Maps'>Get directions</a>
-            </div>`;
+            </div>
+            <div><small>${latitude}, ${longitude}</small></div>`;
     }
 
     return str;
