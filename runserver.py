@@ -11,6 +11,9 @@ import sys
 import logging
 import time
 
+os.environ['REQUESTS_CA_BUNDLE'] = os.path.join(
+    os.path.abspath('.'), 'cacert.pem')
+
 from threading import Thread
 from flask_cors import CORS, cross_origin
 
