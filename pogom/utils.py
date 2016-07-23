@@ -38,7 +38,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-se', '--settings',action='store_true',default=False)
     parser.add_argument('-a', '--auth-service', type=str.lower, help='Auth Service', default='ptc')
-    parser.add_argument('-u', '--username', help='Username', required=True)
+    parser.add_argument('-u', '--username', help='Username', required=False)
     parser.add_argument('-p', '--password', help='Password', required=False)
     parser.add_argument('-t', '--token', help='Token', required=False)
     parser.add_argument('-l', '--location', type=parse_unicode, help='Location, can be an address or coordinates', required=True)
@@ -60,7 +60,7 @@ def get_args():
     args = parser.parse_args()
     if (args.settings) :
         args = parse_config(args) 
-    elif args.password is None:
+    elif args.password is None and args.token is None:
         args.password = getpass.getpass()
 
     return args
