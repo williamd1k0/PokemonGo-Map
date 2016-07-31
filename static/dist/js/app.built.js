@@ -1,57 +1,65 @@
-(function() {
+"use strict";
+
+(function () {
 
   "use strict";
 
   // Methods/polyfills.
 
   // addEventsListener
-  var addEventsListener = function(o, t, e) {
-    var n, i = t.split(" ");
-    for (n in i) o.addEventListener(i[n], e)
-  }
+
+  var addEventsListener = function addEventsListener(o, t, e) {
+    var n,
+        i = t.split(" ");
+    for (n in i) {
+      o.addEventListener(i[n], e);
+    }
+  };
 
   // classList | (c) @remy | github.com/remy/polyfills | rem.mit-license.org
-  ! function() {
+  !function () {
     function t(t) {
       this.el = t;
-      for (var n = t.className.replace(/^\s+|\s+$/g, "").split(/\s+/), i = 0; i < n.length; i++) e.call(this, n[i])
+      for (var n = t.className.replace(/^\s+|\s+$/g, "").split(/\s+/), i = 0; i < n.length; i++) {
+        e.call(this, n[i]);
+      }
     }
 
     function n(t, n, i) {
       Object.defineProperty ? Object.defineProperty(t, n, {
         get: i
-      }) : t.__defineGetter__(n, i)
+      }) : t.__defineGetter__(n, i);
     }
     if (!("undefined" == typeof window.Element || "classList" in document.documentElement)) {
       var i = Array.prototype,
-        e = i.push,
-        s = i.splice,
-        o = i.join;
+          e = i.push,
+          s = i.splice,
+          o = i.join;
       t.prototype = {
-        add: function(t) {
-          this.contains(t) || (e.call(this, t), this.el.className = this.toString())
+        add: function add(t) {
+          this.contains(t) || (e.call(this, t), this.el.className = this.toString());
         },
-        contains: function(t) {
-          return -1 != this.el.className.indexOf(t)
+        contains: function contains(t) {
+          return -1 != this.el.className.indexOf(t);
         },
-        item: function(t) {
-          return this[t] || null
+        item: function item(t) {
+          return this[t] || null;
         },
-        remove: function(t) {
+        remove: function remove(t) {
           if (this.contains(t)) {
-            for (var n = 0; n < this.length && this[n] != t; n++);
-            s.call(this, n, 1), this.el.className = this.toString()
+            for (var n = 0; n < this.length && this[n] != t; n++) {}
+            s.call(this, n, 1), this.el.className = this.toString();
           }
         },
-        toString: function() {
-          return o.call(this, " ")
+        toString: function toString() {
+          return o.call(this, " ");
         },
-        toggle: function(t) {
-          return this.contains(t) ? this.remove(t) : this.add(t), this.contains(t)
+        toggle: function toggle(t) {
+          return this.contains(t) ? this.remove(t) : this.add(t), this.contains(t);
         }
-      }, window.DOMTokenList = t, n(Element.prototype, "classList", function() {
-        return new t(this)
-      })
+      }, window.DOMTokenList = t, n(Element.prototype, "classList", function () {
+        return new t(this);
+      });
     }
   }();
 
@@ -70,32 +78,32 @@
   // Disable animations/transitions until everything's loaded.
   $body.classList.add('is-loading');
 
-  window.addEventListener('load', function() {
+  window.addEventListener('load', function () {
     $body.classList.remove('is-loading');
   });
 
   // Nav.
   var $nav = document.querySelector('#nav'),
-    $navToggle = document.querySelector('a[href="#nav"]'),
-    $navClose;
+      $navToggle = document.querySelector('a[href="#nav"]'),
+      $navClose;
 
   // Stats.
   var $stats = document.querySelector('#stats'),
-    $statsToggle = document.querySelector('a[href="#stats"]'),
-    $statsClose;
+      $statsToggle = document.querySelector('a[href="#stats"]'),
+      $statsClose;
 
   // Event: Prevent clicks/taps inside the nav from bubbling.
-  addEventsListener($nav, 'click touchend', function(event) {
+  addEventsListener($nav, 'click touchend', function (event) {
     event.stopPropagation();
   });
 
   // Event: Prevent clicks/taps inside the stats from bubbling.
-  addEventsListener($stats, 'click touchend', function(event) {
+  addEventsListener($stats, 'click touchend', function (event) {
     event.stopPropagation();
   });
 
   // Event: Hide nav on body click/tap.
-  addEventsListener($body, 'click touchend', function(event) {
+  addEventsListener($body, 'click touchend', function (event) {
     // on ios safari, when navToggle is clicked,
     // this function executes too, so if the target
     // is the toggle button, exit this function
@@ -112,14 +120,14 @@
   // Toggle.
 
   // Event: Toggle nav on click.
-  $navToggle.addEventListener('click', function(event) {
+  $navToggle.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     $nav.classList.toggle('visible');
   });
 
   // Event: Toggle stats on click.
-  $statsToggle.addEventListener('click', function(event) {
+  $statsToggle.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     $stats.classList.toggle('visible');
@@ -141,7 +149,7 @@
   $stats.appendChild($statsClose);
 
   // Event: Hide on ESC.
-  window.addEventListener('keydown', function(event) {
+  window.addEventListener('keydown', function (event) {
     if (event.keyCode == 27) {
       $nav.classList.remove('visible');
       $stats.classList.remove('visible');
@@ -149,17 +157,17 @@
   });
 
   // Event: Hide nav on click.
-  $navClose.addEventListener('click', function(event) {
+  $navClose.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     $nav.classList.remove('visible');
   });
 
   // Event: Hide stats on click.
-  $statsClose.addEventListener('click', function(event) {
+  $statsClose.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     $stats.classList.remove('visible');
   });
-
 })();
+//# sourceMappingURL=app.built.js.map

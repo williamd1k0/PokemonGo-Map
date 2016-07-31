@@ -23,8 +23,6 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 Author: tjado <https://github.com/tejado>
 """
 
-import logging
-
 from auth import Auth
 try:
     from gpsoauth import perform_master_login, perform_oauth
@@ -51,7 +49,7 @@ class AuthGoogle(Auth):
             login = perform_master_login(username, password, self.GOOGLE_LOGIN_ANDROID_ID)
             login = perform_oauth(username, login.get('Token', ''), self.GOOGLE_LOGIN_ANDROID_ID, self.GOOGLE_LOGIN_SERVICE, self.GOOGLE_LOGIN_APP,
                 self.GOOGLE_LOGIN_CLIENT_SIG)
-            
+                
             self._auth_token = login.get('Auth')
         
         if self._auth_token is None:
