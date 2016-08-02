@@ -296,7 +296,7 @@ function createSearchMarker() {
     map: map,
     animation: google.maps.Animation.DROP,
     draggable: true,
-    icon: 'static/maker-icon.png'
+    icon: 'static/marker-icon.png'
   });
 
   var oldLocation = null;
