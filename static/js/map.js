@@ -315,7 +315,8 @@ function createSearchMarker() {
     map: map,
     animation: google.maps.Animation.DROP,
     draggable: true,
-    zIndex: google.maps.Marker.MAX_ZINDEX + 1
+    zIndex: google.maps.Marker.MAX_ZINDEX + 1,
+    icon: 'static/marker-icon.png'
   });
 
   var oldLocation = null;
