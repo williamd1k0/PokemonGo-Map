@@ -36,17 +36,6 @@ __author__ = 'tjado'
 __license__ = 'MIT License'
 __copyright__ = 'Copyright (c) 2016 tjado <https://github.com/tejado>'
 
-protobuf_exist = False
-protobuf_version = 0
-try:
-    protobuf_version = pkg_resources.get_distribution("protobuf").version
-    protobuf_exist = True
-except:
-    pass
-
-if (not protobuf_exist) or (int(protobuf_version[:1]) < 3):
-    raise PleaseInstallProtobufVersion3()
-
 from .pgoapi import PGoApi
 from .rpc_api import RpcApi
 from .auth import Auth
