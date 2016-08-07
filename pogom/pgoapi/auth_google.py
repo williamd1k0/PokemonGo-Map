@@ -30,7 +30,10 @@ import logging
 
 from .auth import Auth
 from .exceptions import AuthException
-from gpsoauth import perform_master_login, perform_oauth
+try:
+    from gpsoauth import perform_master_login, perform_oauth
+except:
+    pass
 
 class AuthGoogle(Auth):
 

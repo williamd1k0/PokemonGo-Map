@@ -132,13 +132,13 @@ def get_args():
     else:
         errors = []
 
-        if (args.username is None and args.token is not None):
+        if (args.username is None and args.token is None):
             errors.append('Missing `username` either as -u/--username or in config')
 
         if (args.location is None):
             errors.append('Missing `location` either as -l/--location or in config')
 
-        if (args.password is None and args.token is not None):
+        if (args.password is None and args.token is None):
             errors.append('Missing `password` either as -p/--password or in config')
 
         if (args.step_limit is None):
@@ -149,6 +149,9 @@ def get_args():
 
         if args.token is None:
             args.token = ''
+        else:
+            args.username = ''
+            args.password = ''
 
         num_auths = len(args.auth_service)
         num_usernames = len(args.username)
@@ -170,7 +173,10 @@ def get_args():
         if num_passwords == 1:
             args.password = [ args.password[0] ] * num_usernames
         if num_auths == 1:
-            args.auth_service = [ args.auth_service[0] ] * num_usernames
+            if num_tokens > 0:
+                args.auth_service = [ args.auth_service[0] ] * num_tokens
+            else:
+                args.auth_service = [ args.auth_service[0] ] * num_usernames
 
         # Make our accounts list
         args.accounts = []
