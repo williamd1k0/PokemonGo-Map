@@ -13,6 +13,9 @@ import logging
 import time
 import re
 
+os.environ['REQUESTS_CA_BUNDLE'] = os.path.join(
+    os.path.abspath('.'), 'cacert.pem')
+
 # Currently supported pgoapi
 pgoapi_version = "1.1.6"
 
