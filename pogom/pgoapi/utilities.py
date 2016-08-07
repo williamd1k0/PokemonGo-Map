@@ -23,12 +23,18 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 Author: tjado <https://github.com/tejado>
 """
 
+import sys
+import os
 import re
 import time
 import struct
 import ctypes
-import xxhash
 import logging
+
+if sys.platform == "darwin":
+  from .darwin import xxhash
+else:
+  import xxhash
 
 from json import JSONEncoder
 from binascii import unhexlify
